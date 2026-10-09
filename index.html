@@ -1,1 +1,354 @@
 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080d18">
+<title>Ma boutique</title>
+
+<style>
+:root {
+  --blue: #168cff;
+  --panel: rgba(5, 12, 25, .88);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: white;
+  font-family: Arial, sans-serif;
+  background: #080d18 url("scooter.jpg") center center / cover fixed no-repeat;
+  min-height: 100vh;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 15, .60);
+  z-index: -1;
+}
+header {
+  padding: 24px 16px 12px;
+  text-align: center;
+}
+h1 { font-size: 25px; margin: 0 0 8px; }
+.subtitle { color: #c3d8f4; font-size: 14px; }
+main {
+  width: min(100% - 24px, 650px);
+  margin: 12px auto 35px;
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid rgba(50, 145, 255, .55);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 8px 30px #0007;
+  backdrop-filter: blur(8px);
+}
+.categories {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.category {
+  color: white;
+  background: #101e33;
+  border: 1px solid #197cff;
+  border-radius: 12px;
+  padding: 7px;
+  cursor: pointer;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.category img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+  margin-bottom: 8px;
+}
+.category span { font-size: 12px; font-weight: bold; }
+button { font: inherit; }
+h2 { font-size: 20px; }
+.product {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ffffff24;
+}
+.product img {
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.product-info { flex: 1; min-width: 0; }
+.product-info h3 { margin: 0 0 8px; }
+.price { color: #77baff; font-weight: bold; }
+.primary, .secondary {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 13px;
+  margin-top: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.primary { background: #167bea; color: white; }
+.secondary {
+  background: #17253a;
+  color: white;
+  border: 1px solid #378bff;
+}
+video {
+  display: block;
+  width: 100%;
+  max-height: 380px;
+  background: #000;
+  border-radius: 12px;
+  margin: 12px 0;
+}
+input {
+  color: white;
+  background: #101e33;
+  border: 1px solid #398cff;
+  border-radius: 9px;
+  padding: 12px;
+  font-size: 16px;
+}
+.quantity {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 16px 0;
+}
+.quantity input { width: 90px; }
+.total { font-size: 20px; font-weight: bold; }
+.hidden { display: none !important; }
+footer { text-align: center; color: #c3d8f4; font-size: 12px; padding: 15px; }
+</style>
+</head>
+
+<body>
+<header>
+  <h1 id="shopTitle">MA BOUTIQUE</h1>
+  <div class="subtitle">BIENVENUE — DÉCOUVRE NOS MENUS</div>
+</header>
+
+<main>
+  <section id="home" class="panel">
+    <h2>Choisis une catégorie</h2>
+    <div id="categories" class="categories"></div>
+  </section>
+
+  <section id="catalog" class="panel hidden">
+    <button class="secondary" onclick="showHome()">← Retour</button>
+    <h2 id="categoryTitle"></h2>
+    <div id="products"></div>
+  </section>
+
+  <section id="detail" class="panel hidden">
+    <button class="secondary" onclick="showCatalog()">← Retour aux produits</button>
+    <h2 id="detailTitle"></h2>
+    <video id="detailVideo" controls playsinline></video>
+    <p id="detailDescription"></p>
+    <p class="price" id="unitPrice"></p>
+    <div class="quantity">
+      <label for="qty">Quantité :</label>
+      <input id="qty" type="number" min="1" max="99" value="1">
+    </div>
+    <p class="total">Total : <span id="total">10</span> €</p>
+    <button class="primary" onclick="orderProduct()">Commander sur Telegram</button>
+  </section>
+</main>
+
+<footer>Merci pour ta visite ❤️</footer>
+
+<script>
+// PERSONNALISE ICI : noms, images, vidéos et prix.
+// Remplace les exemples par tes propres liens.
+
+const categories = [
+  {
+    name: "CATÉGORIE 1",
+    image: "https://placehold.co/400x400/10213c/ffffff?text=Image+1",
+    products: [
+      {
+        name: "Produit 1",
+        image: "https://placehold.co/400x400/10213c/ffffff?text=Produit+1",
+        shortVideo: "",
+        longVideo: "",
+        description: "Personnalise cette description.",
+        price: 10
+      }
+    ]
+  },
+  {
+    name: "CATÉGORIE 2",
+    image: "https://placehold.co/400x400/10213c/ffffff?text=Image+2",
+    products: [
+      {
+        name: "Produit 2",
+        image: "https://placehold.co/400x400/10213c/ffffff?text=Produit+2",
+        shortVideo: "",
+        longVideo: "",
+        description: "Personnalise cette description.",
+        price: 10
+      }
+    ]
+  },
+  {
+    name: "CATÉGORIE 3",
+    image: "https://placehold.co/400x400/10213c/ffffff?text=Image+3",
+    products: [
+      {
+        name: "Produit 3",
+        image: "https://placehold.co/400x400/10213c/ffffff?text=Produit+3",
+        shortVideo: "",
+        longVideo: "",
+        description: "Personnalise cette description.",
+        price: 10
+      }
+    ]
+  }
+];
+
+let selectedCategory = 0;
+let selectedProduct = null;
+
+const $ = id => document.getElementById(id);
+
+function hidePages() {
+  ["home", "catalog", "detail"].forEach(id =>
+    $(id).classList.add("hidden")
+  );
+}
+
+function showHome() {
+  hidePages();
+  $("home").classList.remove("hidden");
+  window.scrollTo(0, 0);
+}
+
+function showCatalog() {
+  hidePages();
+  $("catalog").classList.remove("hidden");
+  window.scrollTo(0, 0);
+}
+
+function renderCategories() {
+  $("categories").innerHTML = "";
+  categories.forEach((cat, i) => {
+    const button = document.createElement("button");
+    button.className = "category";
+
+    const img = document.createElement("img");
+    img.src = cat.image;
+    img.alt = cat.name;
+
+    const name = document.createElement("span");
+    name.textContent = cat.name;
+
+    button.append(img, name);
+    button.onclick = () => openCategory(i);
+    $("categories").append(button);
+  });
+}
+
+function openCategory(i) {
+  selectedCategory = i;
+  $("categoryTitle").textContent = categories[i].name;
+  $("products").innerHTML = "";
+
+  categories[i].products.forEach((p, j) => {
+    const row = document.createElement("div");
+    row.className = "product";
+
+    const img = document.createElement("img");
+    img.src = p.image;
+    img.alt = p.name;
+
+    const info = document.createElement("div");
+    info.className = "product-info";
+
+    const title = document.createElement("h3");
+    title.textContent = p.name;
+
+    const price = document.createElement("p");
+    price.className = "price";
+    price.textContent = "À partir de " + p.price + " €";
+
+    const btn = document.createElement("button");
+    btn.className = "primary";
+    btn.textContent = "Voir le produit";
+    btn.onclick = () => openProduct(j);
+
+    info.append(title, price, btn);
+    row.append(img, info);
+    $("products").append(row);
+  });
+
+  showCatalog();
+}
+
+function openProduct(j) {
+  selectedProduct = categories[selectedCategory].products[j];
+  const p = selectedProduct;
+
+  $("detailTitle").textContent = p.name;
+  $("detailDescription").textContent = p.description;
+  $("unitPrice").textContent = "Prix unitaire : " + p.price + " €";
+  $("qty").value = 1;
+  updateTotal();
+
+  const video = $("detailVideo");
+  video.pause();
+  video.removeAttribute("src");
+  if (p.longVideo) {
+    video.src = p.longVideo;
+    video.classList.remove("hidden");
+  } else {
+    video.classList.add("hidden");
+  }
+
+  hidePages();
+  $("detail").classList.remove("hidden");
+  window.scrollTo(0, 0);
+}
+
+function updateTotal() {
+  if (!selectedProduct) return;
+  let q = Math.floor(Number($("qty").value) || 1);
+  q = Math.max(1, Math.min(99, q));
+  $("qty").value = q;
+  $("total").textContent = q * selectedProduct.price;
+}
+
+$("qty").addEventListener("input", updateTotal);
+
+function orderProduct() {
+  if (!selectedProduct) return;
+  updateTotal();
+
+  const quantity = Number($("qty").value);
+  const total = quantity * selectedProduct.price;
+  const message =
+    "Bonjour, je souhaite commander :\n" +
+    selectedProduct.name + "\n" +
+    "Quantité : " + quantity + "\n" +
+    "Total : " + total + " €";
+
+  const url = "https://t.me/share/url?url=" +
+    encodeURIComponent(location.href) +
+    "&text=" + encodeURIComponent(message);
+
+  window.open(url, "_blank");
+}
+
+renderCategories();
+</script>
+</body>
+</html>
+
